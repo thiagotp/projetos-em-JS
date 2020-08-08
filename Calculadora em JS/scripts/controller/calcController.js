@@ -12,6 +12,7 @@ class CalcController {
         this.initialize();
         this.initButtonsEvents();
         this.initKeyBoards();
+        this.pasteFromClipboard();
     }
 
     //método principal desse projeto onde ele vai executar tudo que preciso que aconteça assim que a calculadora seja instanciada
@@ -37,6 +38,26 @@ class CalcController {
             this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
                 btn.style.cursor = "pointer";
             });
+        });
+    }
+
+    //Criando um input para conseguir copiar o valor de dentro da calculadora 
+    copyToClipboard() {
+        let input = document.createElement('input');
+
+        input.value = this.displayCalc;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("Copy");
+        input.remove();
+    }
+
+    //Método para colar um número na calculadora vindo de outro lugar
+    pasteFromClipboard() {
+        document.addEventListener('paste', e => {
+            let text = e.clipboardData.getData('Text');
+
+            this.displayCalc = parseFloat(text);
         });
     }
 
@@ -78,6 +99,9 @@ class CalcController {
                 case "Enter":
                 case "=":
                     this.calc();
+                    break;
+                case "c":
+                    if (e.ctrlKey) this.copyToClipBoard();
                     break;
             }
         });
