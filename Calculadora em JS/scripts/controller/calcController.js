@@ -1,6 +1,8 @@
 class CalcController {
     constructor() {
         //o underline indica que o método ou atributo é privado
+        this._audio = new Audio("click.mp3");
+        this._audioOnOff = false;
         this._lastOperator = "";
         this._lastNumber = "";
         this._operation = [];
@@ -12,7 +14,6 @@ class CalcController {
         this.initialize();
         this.initButtonsEvents();
         this.initKeyBoards();
-        this.pasteFromClipboard();
     }
 
     //método principal desse projeto onde ele vai executar tudo que preciso que aconteça assim que a calculadora seja instanciada
@@ -23,6 +24,26 @@ class CalcController {
             this.setDisplayDateTime();
         }, 1000);
         this.setLastNumberToDisplay();
+        this.pasteFromClipboard();
+
+        document.querySelectorAll(".btn-ac").forEach(btn => {
+            btn.addEventListener("dblclick", e => {
+                this.toggleAudio();
+            });
+        });
+    }
+
+    //Método para mudar o status do áudio
+    toggleAudio() {
+        this._audioOnOff = !this._audioOnOff;
+    }
+
+    //Método para executar o áudio de acordo com o status do "toggleAudio"
+    playAudio() {
+        if (this._audioOnOff) {
+            this._audio.currentTime = 0;
+            this._audio.play();
+        }
     }
 
     initButtonsEvents() {
@@ -65,6 +86,7 @@ class CalcController {
     initKeyBoards() {
         document.addEventListener("keyup", e => {
             console.log(e.key)
+            this.playAudio();
             switch (e.key) {
                 case "Delete":
                 case "Escape":
@@ -130,6 +152,10 @@ class CalcController {
 
     //mudando o valor direto do display do html
     set displayCalc(value) {
+        if (value.toString().length > 10) {
+            this.setError();
+            return false;
+        }
         this._displayCalcEl.innerHTML = value;
     }
 
@@ -258,7 +284,13 @@ class CalcController {
     }
 
     getResult() {
-        return eval(this._operation.join(""));
+        try {
+            return eval(this._operation.join(""));
+        } catch (e) {
+            setTimeout(() => {
+                this.setError();
+            }, 1);
+        }
     }
 
     //fazendo o cálculo automático depois de 4 itens no array e configurando o mesmo
@@ -292,6 +324,7 @@ class CalcController {
 
 
     execBtn(textBtn) {
+        this.playAudio();
         switch (textBtn) {
             case "ac":
                 this.clearAll();
