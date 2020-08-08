@@ -18,6 +18,7 @@ class CalcController {
         setInterval(() => {
             this.setDisplayDateTime();
         }, 1000);
+        this.setLastNumberToDisplay();
     }
 
     initButtonsEvents() {
@@ -96,11 +97,13 @@ class CalcController {
     //método para apagar tudo da calculadora
     clearAll() {
         this._operation = [];
+        this.setLastNumberToDisplay();
     }
 
     //método para apagar a última entrada do array
     clearEntry() {
         this._operation.pop();
+        this.setLastNumberToDisplay();
     }
 
     //método para adicionar item ao array
@@ -114,28 +117,33 @@ class CalcController {
         if (isNaN(this.getLastOperation())) {
             if (this.isOperator(value)) {
                 this.setLastOperation(value);
+                console.log(this._operation)
             } else if (isNaN(value)) {
                 console.log("outra coisa");
             } else {
                 this.pushOperation(value);
+                this.setLastNumberToDisplay();
+                console.log(this._operation)
             }
         } else {
             if (this.isOperator(value)) {
                 this.pushOperation(value);
+                console.log(this._operation)
             } else {
                 let newValue = this.getLastOperation().toString() + value.toString();
                 this.setLastOperation((parseFloat(newValue)));
                 this.setLastNumberToDisplay();
+                console.log(this._operation)
             }
         }
 
     }
 
     //Inserindo números e operadores no array _operation
-    pushOperation(value){
-        this._operation.push(value);   
-        if(this._operation.length > 3){
-           this.calc();
+    pushOperation(value) {
+        this._operation.push(value);
+        if (this._operation.length > 3) {
+            this.calc();
         }
     }
 
@@ -155,19 +163,38 @@ class CalcController {
     }
 
     //atualizando o valor do display
-    setLastNumberToDisplay(){
-        for(let i = this._operation.length;i>=0;i--){
-            if(!isNaN(this._operation[i])){
-                console.log("o numero é "+this._operation[i])
+    setLastNumberToDisplay() {
+        let lastNumber;
+        for (let i = this._operation.length - 1; i >= 0; i--) {
+            if (!isNaN(this._operation[i])) {
+                lastNumber = this._operation[i];
+                break;
             }
         }
+        if (!lastNumber) lastNumber = 0;
+        this.displayCalc = lastNumber
+    }
+
+    getResult() {
+        return eval(this._operation.join(""));
     }
 
     //fazendo o cálculo automático depois de 4 itens no array e configurando o mesmo
-    calc(){
-        let last = this._operation.pop();
-        let result = eval(this._operation.join(""));
-        this._operation = [result, last]
+    calc() {
+        let last = "";
+        if (this._operation.length > 3) {
+            last = this._operation.pop();
+            let result = this.getResult()
+        }
+        let result = this.getResult()
+        if (last == "%") {
+            result /= 100;
+            this._operation = [result];
+        } else {
+            this._operation = [result];
+            if (last) this._operation.push(last);
+        }
+        this.setLastNumberToDisplay();
     }
 
 
@@ -192,6 +219,7 @@ class CalcController {
                 this.addOperation(parseFloat(textBtn));
                 break;
             case "ponto":
+                this.addOperation(".");
                 break;
             case "soma":
                 this.addOperation("+");
@@ -209,6 +237,7 @@ class CalcController {
                 this.addOperation("%");
                 break;
             case "igual":
+                this.calc();
                 break;
             default:
                 this.setError();
