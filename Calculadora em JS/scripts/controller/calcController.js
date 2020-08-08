@@ -11,6 +11,7 @@ class CalcController {
         this._currentDate;
         this.initialize();
         this.initButtonsEvents();
+        this.initKeyBoards();
     }
 
     //método principal desse projeto onde ele vai executar tudo que preciso que aconteça assim que a calculadora seja instanciada
@@ -36,6 +37,49 @@ class CalcController {
             this.addEventListenerAll(btn, "mouseover mouseup mousedown", e => {
                 btn.style.cursor = "pointer";
             });
+        });
+    }
+
+    //Pegando eventos do teclado
+    initKeyBoards() {
+        document.addEventListener("keyup", e => {
+            console.log(e.key)
+            switch (e.key) {
+                case "Delete":
+                case "Escape":
+                    this.clearAll();
+                    break;
+                case "Backspace":
+                    this.clearEntry();
+                    break;
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                case "0":
+                    this.addOperation(parseFloat(e.key));
+                    break;
+                case ".":
+                case ",":
+                    this.addDot();
+                    break;
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                case "%":
+                    this.addOperation(e.key);
+                    break;
+                case "Enter":
+                case "=":
+                    this.calc();
+                    break;
+            }
         });
     }
 
@@ -122,8 +166,6 @@ class CalcController {
             if (this.isOperator(value)) {
                 this.setLastOperation(value);
                 console.log(this._operation)
-            } else if (isNaN(value)) {
-                console.log("outra coisa");
             } else {
                 this.pushOperation(value);
                 this.setLastNumberToDisplay();
@@ -135,7 +177,7 @@ class CalcController {
                 console.log(this._operation)
             } else {
                 let newValue = this.getLastOperation().toString() + value.toString();
-                this.setLastOperation((parseFloat(newValue)));
+                this.setLastOperation((newValue));
                 this.setLastNumberToDisplay();
                 console.log(this._operation)
             }
@@ -176,7 +218,7 @@ class CalcController {
             }
         }
 
-        if(!lastItem){
+        if (!lastItem) {
             lastItem = (isOperator) ? this._lastOperator : this._lastNumber
         }
         return lastItem;
@@ -246,7 +288,7 @@ class CalcController {
                 this.addOperation(parseFloat(textBtn));
                 break;
             case "ponto":
-                this.addOperation(".");
+                this.addDot();
                 break;
             case "soma":
                 this.addOperation("+");
@@ -272,6 +314,22 @@ class CalcController {
         }
 
     }
+
+    addDot() {
+        let lastOperation = this.getLastOperation();
+        console.log(lastOperation);
+        if (typeof lastOperation === 'string' && lastOperation && lastOperation.split("").indexOf(".") > -1) {
+            return;
+        }
+        if ((this.isOperator(lastOperation) || (!lastOperation)) && lastOperation != 0) {
+            this.pushOperation("0.");
+        } else {
+            this.setLastOperation(lastOperation.toString() + '.');
+        }
+        this.setLastNumberToDisplay();
+
+    }
+
     setError() {
         this.displayCalc = "Error"
     }
