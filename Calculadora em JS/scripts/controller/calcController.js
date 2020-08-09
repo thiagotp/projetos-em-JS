@@ -241,7 +241,7 @@ class CalcController {
         if (this._operation.length > 3) {
             this.calc();
         }
-    }
+    }   
 
     //conferindo se o valor que está sendo recebido por parâmetro é um operador
     isOperator(value) {
@@ -323,54 +323,54 @@ class CalcController {
     }
 
 
-    execBtn(textBtn) {
-        this.playAudio();
-        switch (textBtn) {
-            case "ac":
-                this.clearAll();
-                break;
-            case "ce":
-                this.clearEntry();
-                break;
-            case "1":
-            case "2":
-            case "3":
-            case "4":
-            case "5":
-            case "6":
-            case "7":
-            case "8":
-            case "9":
-            case "0":
-                this.addOperation(parseFloat(textBtn));
-                break;
-            case "ponto":
-                this.addDot();
-                break;
-            case "soma":
-                this.addOperation("+");
-                break;
-            case "subtracao":
-                this.addOperation("-");
-                break;
-            case "multiplicacao":
-                this.addOperation("*");
-                break;
-            case "divisao":
-                this.addOperation("/");
-                break;
-            case "porcento":
-                this.addOperation("%");
-                break;
-            case "igual":
-                this.calc();
-                break;
-            default:
-                this.setError();
-                break;
-        }
+        execBtn(textBtn) {
+            this.playAudio();
+            switch (textBtn) {
+                case "ac":
+                    this.clearAll();
+                    break;
+                case "ce":
+                    this.clearEntry();
+                    break;
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                case "0":
+                    this.addOperation(parseFloat(textBtn));
+                    break;
+                case "ponto":
+                    this.addDot();
+                    break;
+                case "soma":
+                    this.addOperation("+");
+                    break;
+                case "subtracao":
+                    this.addOperation("-");
+                    break;
+                case "multiplicacao":
+                    this.addOperation("*");
+                    break;
+                case "divisao":
+                    this.addOperation("/");
+                    break;
+                case "porcento":
+                    this.addOperation("%");
+                    break;
+                case "igual":
+                    this.calc();
+                    break;
+                default:
+                    this.setError();
+                    break;
+            }
 
-    }
+        }
 
     addDot() {
         let lastOperation = this.getLastOperation();
