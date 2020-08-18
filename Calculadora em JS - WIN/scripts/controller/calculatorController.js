@@ -70,6 +70,26 @@ class calculatorController {
         this.display();
     }
 
+    clearLastPick() {
+        let newValue = this._operation[this._operation.length - 1]
+        console.log(newValue);
+        let newArray = newValue.split("");
+        console.log(newArray);
+        if (newArray.length > 0) {
+            newArray.pop();
+        } else {
+            newArray = 0;
+        }
+        console.log(newValue + " aqui");
+        console.log(newArray + " aqui");
+        if (newArray[0] != undefined) {
+            this.setLastOperation(newArray[0]);
+        } else {
+            this.setLastOperation(0)
+        }
+        this.display();
+    }
+
     resultCalc() {
         try {
             return eval(this._operation.join(""));
@@ -159,7 +179,6 @@ class calculatorController {
             case "x²":
                 let value = parseFloat(this.getLastOperation());
                 this.setLastOperation(value * value);
-                console.log("aqui")
                 console.log(this.getLastOperation(false));
                 this.calc();
                 break;
@@ -216,6 +235,9 @@ class calculatorController {
                 break;
             case "=":
                 this.calc();
+                break;
+            case "←":
+                this.clearLastPick();
                 break;
             default:
                 this.setError();
