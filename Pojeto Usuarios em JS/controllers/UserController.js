@@ -3,8 +3,14 @@ class UserController {
     constructor(formId, tableId) {
         this.formEl = document.getElementById(formId);
         this.tableEl = document.getElementById(tableId);
-
+        this.onEdit();
         this.onSubmit();
+    }
+
+    onEdit() {
+        document.querySelector("#box-user-update .btn-cancel").addEventListener('click', e => {
+            this.showPainelCreate();
+        });
     }
 
     //Implantando o event submit
@@ -93,9 +99,9 @@ class UserController {
 
     addLine(dataUser) {
         let tr = document.createElement('tr');
-        
+
         tr.dataset.user = JSON.stringify(dataUser);
-        
+
         tr.innerHTML = `
         <td><img src="${dataUser._photo}" alt="User Image" class="img-circle img-sm"></td>
         <td>${dataUser._name}</td>
@@ -103,24 +109,47 @@ class UserController {
         <td>${dataUser._admin ? 'Sim' : 'Não'}</td>
         <td>${Utils.dateFormat(dataUser._register)}</td>
         <td>
-            <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
+            <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
             <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
         </td>`
+
+        tr.querySelector(".btn-edit").addEventListener("click", event => {
+            let json = JSON.parse(tr.dataset.user);
+            let form = document.querySelector("#form-user-update");
+            for (let name in json){
+                let field = form.querySelector("[name = "+name.replace("_","")+"]");
+                console.log(name ,field)
+                if(field){
+                    if(field.type == "file") continue;
+                    field.value = json[name];
+                }
+            }
+            
+            this.showPainelUpdate();
+        });
+
         this.tableEl.appendChild(tr);
 
         this.updateCount();
     }//Método que atualiza a lista dos usuários
 
-    updateCount(){
+    updateCount() {
         let numberUsers = 0;
         let numberAdmin = 0;
-        [...this.tableEl.children].forEach(tr =>{
+        [...this.tableEl.children].forEach(tr => {
             let user = JSON.parse(tr.dataset.user);
-            console.log(user);
-            numberUsers ++;
-            if(user._admin) numberAdmin++;
+            (user._admin) ? numberAdmin++ : numberUsers++;
         });
-        console.log(numberUsers)
-        console.log(numberAdmin)
+        document.getElementById("new-users").innerHTML = numberUsers
+        document.getElementById("new-admins").innerHTML = numberAdmin
+    }//Método que atualizada na tela a quantidade de usuários do sistema
+
+    showPainelCreate() {
+        document.querySelector('#box-user-create').style.display = "block"
+        document.querySelector('#box-user-update').style.display = "none"
+    }
+    showPainelUpdate() {
+        document.querySelector('#box-user-create').style.display = "none"
+        document.querySelector('#box-user-update').style.display = "block"
     }
 } 
