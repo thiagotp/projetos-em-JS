@@ -25,7 +25,7 @@ document.getElementById('form-user-create').addEventListener("submit", function(
 */
 
 
-let userController = new UserController("form-user-create", "table-users");
+let userController = new UserController("form-user-create", "form-user-update", "table-users");
 
 
 
