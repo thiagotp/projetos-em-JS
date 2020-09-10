@@ -27,29 +27,20 @@ class UserController {
             console.log(this.getValues(this.formUp))
             console.log(values._photo);
 
-
             this.getPhoto(this.formUp).then((content) => {
                 if (!values.photo) {
                     result._photo = userOld._photo;
                 } else {
                     result._photo = content;
                 }
-                tr.dataset.user = JSON.stringify(result);
-                tr.innerHTML = `
-                <td><img src="${result._photo}" alt="User Image" class="img-circle img-sm"></td>
-                <td>${result._name}</td>
-                <td>${result._email}</td>
-                <td>${result._admin ? 'Sim' : 'Não'}</td>
-                <td>${Utils.dateFormat(result._register)}</td>
-                <td>
-                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                    <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
-                    </td>`
+                let user = new User();
+                user.loadFromJSON(result);
+                user.save();
+                this.getTr(result, tr);
+                this.updateCount();
                 this.formUp.reset();
                 btn.disabled = false;
-                this.addEventsTr(tr);
                 this.showPainelCreate();
-                this.updateCount();
             }, (e) => {
                 console.error(e);
             });
@@ -70,7 +61,7 @@ class UserController {
             }
             this.getPhoto(this.formCreateEl).then((content) => {
                 values._photo = content
-                this.insertSession(values);
+                values.save();
                 this.addLine(values);
                 this.formCreateEl.reset();
                 btn.disabled = false;
@@ -143,18 +134,10 @@ class UserController {
 
     }//Método que preenche um JSON com os valores do formulário e retorna para o Objeto usuário
 
-    getUserStorage(){
-        let users = [];
-        if(sessionStorage.getItem("users")){
-            users = JSON.parse(sessionStorage.getItem("users"));
-            //users = JSON.parse(localStorage.getItem("users"));
-        }
-        return users;
-    }//Método para selecionar os usuários que foram inseridos e convertelos para JSON
-  
-    selectAll(){
-        let users = this.getUserStorage();
-        users.forEach(dataUser =>{
+
+    selectAll() {
+        let users = User.getUserStorage();
+        users.forEach(dataUser => {
             let user = new User();
             user.loadFromJSON(dataUser);
             this.addLine(user);
@@ -162,15 +145,25 @@ class UserController {
         this.updateCount();
     }//Método para selecionar todos os usuários armazenados na sessionStorage
 
-    insertSession(data){
+    insertSession(data) {
         let users = this.getUserStorage();
         users.push(data);
-        sessionStorage.setItem("users", JSON.stringify(users));
-        //localStorage.setItem("users", JSON.stringify(users));
+        //sessionStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("users", JSON.stringify(users));
     }//Método para adicionar usuários no sessionStorage e localStorage
 
     addLine(dataUser) {
-        let tr = document.createElement('tr');
+        let tr = this.getTr(dataUser);
+
+        tr.dataset.user = JSON.stringify(dataUser);
+
+        this.tableEl.appendChild(tr);
+
+        this.updateCount();
+    }//Método que atualiza a lista dos usuários adicionando nova linha na tabela
+
+    getTr(dataUser, tr = null) {
+        if (tr === null) tr = document.createElement('tr');
 
         tr.dataset.user = JSON.stringify(dataUser);
 
@@ -186,15 +179,16 @@ class UserController {
         </td>`
 
         this.addEventsTr(tr);
+        return tr;
 
-        this.tableEl.appendChild(tr);
-
-        this.updateCount();
-    }//Método que atualiza a lista dos usuários
+    }//Cria uma tr nova para a tabela
 
     addEventsTr(tr) {
-        tr.querySelector('.btn-delete').addEventListener("click", event=>{
-            if(confirm("Deseja realmente excluir?")){
+        tr.querySelector('.btn-delete').addEventListener("click", event => {
+            if (confirm("Deseja realmente excluir?")) {
+                let user = new User();
+                user.loadFromJSON(JSON.parse(tr.dataset.user));
+                user.remove();
                 tr.remove();
                 this.updateCount();
             }
